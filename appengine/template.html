@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>Three letter domains</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&display=swap&text=%20Tadehilmnorst">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans&display=swap">
+<style type="text/css">
+:root {
+  font-size: 22px;
+
+  --width: 88vw;
+
+  --color-text: #201a17;
+  --color-bg: var(--color-text);
+  --color-anchor-text: #703800;
+
+  --color-head-text: #ece0da;
+  --color-head-bg: var(--color-text);
+
+  --color-card-title-text: #ffb77e;
+  --color-card-title-bg: #4f2500;
+  --color-card-bg: #ffdcc3;
+  --color-card-term-text: #51443b;
+  --color-card-desc-text: var(--color-card-term-text);
+}
+
+* {
+  font-family: inherit;
+  font-weight: inherit;
+  line-height: 1;
+
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: initial;
+}
+
+body {
+  color: var(--color-text);
+  background-color: var(--color-bg);
+
+  font-family: 'Nunito Sans',sans-serif;
+}
+
+header {
+  padding: 2rem calc((100vw - var(--width)) / 2) 1rem;
+  background-color: var(--color-head-bg);
+}
+
+h1 {
+  color: var(--color-head-text);
+  font-family: 'Bungee',sans-serif;
+  font-size: 3rem;
+
+  margin-right: 6vw;
+
+}
+h1 a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+main {
+  display: grid;
+  gap: 4rem;
+  grid-template-columns: repeat(auto-fit, minmax(16em, 1fr));
+
+  margin: 1rem auto;
+  width: var(--width);
+}
+
+section {
+  background-color: var(--color-card-bg);
+}
+
+h2 {
+  color: var(--color-card-title-text);
+  background-color: var(--color-card-title-bg);
+
+  font-size: 1.2rem;
+
+  padding: 2em 0 1rem 1rem;
+  width: 100%;
+}
+
+dl {
+  margin: 1rem;
+}
+dt {
+  color: var(--color-card-term-text);
+
+  margin-bottom: 0.5em;
+}
+dd {
+  color: var(--color-card-desc-text);
+  font-size: 0.7rem;
+  line-height: 1.5;
+
+  margin-bottom: 1em;
+}
+
+a {
+  color: var(--color-anchor-text);
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1><a href="/">Three letter domains</a></h1>
+</header>
+
+<main>
+{{ range . }}
+<section>
+<h2>.{{ .Tld }}</h2>
+<dl>
+{{ range .Domains }}
+<dt><a href="https://{{ .Domain }}" rel="noreferrer" referrerpolicy="no-referrer">{{ .Domain }}</a></dt>
+<dd>Created on: {{ .Details.registration.Format "2006-01-02 15:04:05 MST" }} &hyphen; Expires on: {{ .Details.expiration.Format "2006-01-02 15:04:05 MST" }}</dd>
+{{ end }}
+</dl>
+</section>
+{{ end }}
+</main>
+
+</body>
+</html>
