@@ -106,6 +106,14 @@ dd {
 a {
   color: var(--color-anchor-text);
 }
+
+abbr[title] {
+  text-decoration: initial;
+}
+
+.expires {
+  padding-left: 1em;
+}
 </style>
 </head>
 <body>
@@ -116,12 +124,18 @@ a {
 
 <main>
 {{ range . }}
-<section>
+<section id="{{ .Tld }}">
 <h2>.{{ .Tld }}</h2>
 <dl>
 {{ range .Domains }}
-<dt><a href="https://{{ .Domain }}" rel="noreferrer" referrerpolicy="no-referrer">{{ .Domain }}</a></dt>
-<dd>Created on: {{ .Details.registration.Format "2006-01-02 15:04:05 MST" }} &hyphen; Expires on: {{ .Details.expiration.Format "2006-01-02 15:04:05 MST" }}</dd>
+<dt class="{{ .Domain }}">
+<a href="https://{{ .Domain }}" rel="noreferrer" referrerpolicy="no-referrer">{{ .Domain }}</a>
+{{ if .Details.dnssec }}<abbr title="DNSSEC enabled">&#x1f510;</abbr>{{ end }}
+</dt>
+<dd class="{{ .Domain }}">
+<span class="created"><abbr title="created on">&#x270d;</abbr> {{ .Details.registration.Format "2006-01-02 15:04:05 MST" }}</span>
+<span class="expires"><abbr title="expires on">&#x231b;</abbr> {{ .Details.expiration.Format "2006-01-02 15:04:05 MST" }}</span>
+</dd>
 {{ end }}
 </dl>
 </section>
