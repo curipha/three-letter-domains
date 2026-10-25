@@ -1,6 +1,7 @@
 package main
 
 import (
+  "bytes"
   "context"
   "html/template"
   "log"
@@ -19,20 +20,14 @@ type Domain struct {
   Details map[string]any
 }
 
-var projectid = os.Getenv("GOOGLE_CLOUD_PROJECT")
+var (
+  client *firestore.Client
+  projectid = os.Getenv("GOOGLE_CLOUD_PROJECT")
+  tmpl = template.Must(template.ParseFiles("template.html"))
+)
 
 func toppage(w http.ResponseWriter, r *http.Request) {
-  ctx := context.Background()
-
-  log.Printf("Initialize Firestore client for project: %s", projectid)
-  client, err := firestore.NewClient(ctx, projectid)
-  if err != nil {
-    log.Printf("Firestore client initialization failed: %s", err)
-    http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-    return
-  }
-
-  defer client.Close()
+  ctx := r.Context()
 
   var domains []Domains
   for _, tld := range []string{"com", "net"} {
@@ -58,17 +53,30 @@ func toppage(w http.ResponseWriter, r *http.Request) {
     domains = append(domains, Domains{tld, records})
   }
 
-  w.Header().Set("Cache-Control", "public, max-age=600") // Ask Goole Frontend to cache the page
 
-  err = template.Must(template.ParseFiles("template.html")).Execute(w, domains)
+  var buf bytes.Buffer
+  err := tmpl.Execute(&buf, domains)
   if err != nil {
-    log.Printf("Template execution error: %s", err)
+    log.Printf("Template execution error: %v", err)
     http.Error(w, "Internal Server Error", http.StatusInternalServerError)
     return
   }
+
+  w.Header().Set("Cache-Control", "public, max-age=600") // Ask Google Frontend to cache the page
+  buf.WriteTo(w)
 }
 
 func main() {
+  var err error
+  log.Printf("Initialize Firestore client for project: %s", projectid)
+  client, err = firestore.NewClient(context.Background(), projectid)
+  if err != nil {
+    log.Fatalf("Firestore client initialization failed: %v", err)
+    return
+  }
+
+  defer client.Close()
+
   http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
     case "GET":
@@ -90,7 +98,7 @@ func main() {
   }
 
   log.Printf("Listening on port %s", port)
-  err := http.ListenAndServe(":"+port, nil)
+  err = http.ListenAndServe(":"+port, nil)
   if err != nil {
     log.Fatal(err)
   }
