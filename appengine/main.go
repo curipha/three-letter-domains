@@ -77,19 +77,12 @@ func main() {
 
   defer client.Close()
 
-  http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-    switch r.Method {
-    case "GET":
-      if r.URL.Path != "/" {
-        http.Error(w, "Not Found", http.StatusNotFound)
-        return
-      }
-      toppage(w, r)
 
-    default:
-      http.Error(w, "Not Implemented", http.StatusNotImplemented)
-    }
-  })
+  mux := http.NewServeMux()
+
+  // "GET" also accepts HEAD; other methods return 405 and an Allow header.
+  // "{$}" makes paths other than "/" return a 404.
+  mux.HandleFunc("GET /{$}", toppage)
 
   port := os.Getenv("PORT")
   if port == "" {
@@ -97,8 +90,18 @@ func main() {
     log.Printf("Defaulting to port %s", port)
   }
 
+
+  server := &http.Server{
+    Addr:              ":" + port,
+    Handler:           mux,
+    ReadHeaderTimeout: 10 * time.Second, // Mitigate Slowloris
+    ReadTimeout:       10 * time.Second,
+    WriteTimeout:      10 * time.Second,
+    IdleTimeout:       60 * time.Second,
+  }
+
   log.Printf("Listening on port %s", port)
-  err = http.ListenAndServe(":"+port, nil)
+  err := server.ListenAndServe()
   if err != nil {
     log.Fatal(err)
   }
