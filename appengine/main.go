@@ -7,6 +7,7 @@ import (
   "log"
   "net/http"
   "os"
+  "time"
 
   "cloud.google.com/go/firestore"
 )
@@ -101,7 +102,7 @@ func main() {
   }
 
   log.Printf("Listening on port %s", port)
-  err := server.ListenAndServe()
+  err = server.ListenAndServe()
   if err != nil {
     log.Fatal(err)
   }
