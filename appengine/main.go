@@ -17,8 +17,10 @@ type TLDGroup struct {
   Domains []*Domain
 }
 type Domain struct {
-  Domain  string
-  Details map[string]any
+  Domain       string    `firestore:"-"`
+  DNSSEC       bool      `firestore:"dnssec"`
+  Registration time.Time `firestore:"registration"`
+  Expiration   time.Time `firestore:"expiration"`
 }
 
 var (
@@ -32,8 +34,7 @@ func toppage(w http.ResponseWriter, r *http.Request) {
 
   var tldgrps []TLDGroup
   for _, tld := range []string{"com", "net"} {
-    query := client.Collection(tld).OrderBy("expiration", firestore.Asc).Limit(20)
-    docs, err := query.Documents(ctx).GetAll()
+    docs, err := client.Collection(tld).OrderBy("expiration", firestore.Asc).Limit(20).Documents(ctx).GetAll()
     if err != nil {
       log.Printf("Failed to query to Firestore: %s", err)
       http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -42,13 +43,14 @@ func toppage(w http.ResponseWriter, r *http.Request) {
 
     var records []*Domain
     for _, doc := range docs {
-      records = append(
-        records,
-        &Domain{
-          Domain:  doc.Ref.ID,
-          Details: doc.Data(),
-        },
-      )
+      var d Domain
+      err := doc.DataTo(&d)
+      if err != nil {
+        log.Printf("Skip malformed document %s/%s: %v", tld, doc.Ref.ID, err)
+        continue
+      }
+      d.Domain = doc.Ref.ID
+      records = append(records, &d)
     }
 
     tldgrps = append(tldgrps, TLDGroup{tld, records})

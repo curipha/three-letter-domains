@@ -128,12 +128,12 @@ abbr[title] {
 <dl>
 {{ range .Domains }}
 <dt class="{{ .Domain }}">
-<a href="https://{{ .Domain }}" rel="noreferrer" referrerpolicy="no-referrer">{{ .Domain }}</a>
-{{ if .Details.dnssec }}<abbr title="DNSSEC enabled">&#x1f510;</abbr>{{ end }}
+<a href="https://{{ .Domain }}" rel="noreferrer">{{ .Domain }}</a>
+{{ if .DNSSEC }}<abbr title="DNSSEC enabled">&#x1f510;</abbr>{{ end }}
 </dt>
 <dd class="{{ .Domain }}">
-<span class="created"><abbr title="created on">&#x270d;</abbr> {{ .Details.registration.Format "2006-01-02 15:04:05 MST" }}</span>
-<span class="expires"><abbr title="expires on">&#x231b;</abbr> {{ .Details.expiration.Format "2006-01-02 15:04:05 MST" }}</span>
+<span class="created"><abbr title="created on">&#x270d;</abbr> {{ if .Registration.IsZero }}-{{ else }}{{ .Registration.Format "2006-01-02 15:04:05 MST" }}{{ end }}</span>
+<span class="expires"><abbr title="expires on">&#x231b;</abbr> {{ if .Expiration.IsZero }}-{{ else }}{{ .Expiration.Format "2006-01-02 15:04:05 MST" }}{{ end }}</span>
 </dd>
 {{ end }}
 </dl>
