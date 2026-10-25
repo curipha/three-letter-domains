@@ -11,7 +11,7 @@ import (
   "cloud.google.com/go/firestore"
 )
 
-type Domains struct {
+type TLDGroup struct {
   Tld     string
   Domains []*Domain
 }
@@ -29,7 +29,7 @@ var (
 func toppage(w http.ResponseWriter, r *http.Request) {
   ctx := r.Context()
 
-  var domains []Domains
+  var tldgrps []TLDGroup
   for _, tld := range []string{"com", "net"} {
     query := client.Collection(tld).OrderBy("expiration", firestore.Asc).Limit(20)
     docs, err := query.Documents(ctx).GetAll()
@@ -50,12 +50,12 @@ func toppage(w http.ResponseWriter, r *http.Request) {
       )
     }
 
-    domains = append(domains, Domains{tld, records})
+    tldgrps = append(tldgrps, TLDGroup{tld, records})
   }
 
 
   var buf bytes.Buffer
-  err := tmpl.Execute(&buf, domains)
+  err := tmpl.Execute(&buf, tldgrps)
   if err != nil {
     log.Printf("Template execution error: %v", err)
     http.Error(w, "Internal Server Error", http.StatusInternalServerError)
