@@ -30,7 +30,8 @@ var (
 )
 
 func toppage(w http.ResponseWriter, r *http.Request) {
-  ctx := r.Context()
+  ctx, cancel := context.WithTimeout(r.Context(), 5 * time.Second)
+  defer cancel()
 
   var tldgrps []TLDGroup
   for _, tld := range []string{"com", "net"} {
