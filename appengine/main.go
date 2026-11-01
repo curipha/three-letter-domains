@@ -65,6 +65,9 @@ func toppage(w http.ResponseWriter, r *http.Request) {
     return
   }
 
+  w.Header().Set("Content-Type", "text/html; charset=utf-8")
+  w.Header().Set("X-Content-Type-Options", "nosniff")
+  w.Header().Set("Referrer-Policy", "no-referrer")
   w.Header().Set("Cache-Control", "public, max-age=600") // Ask Google Frontend to cache the page
   buf.WriteTo(w)
 }
