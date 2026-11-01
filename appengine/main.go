@@ -57,7 +57,6 @@ func toppage(w http.ResponseWriter, r *http.Request) {
     tldgrps = append(tldgrps, TLDGroup{tld, records})
   }
 
-
   var buf bytes.Buffer
   err := tmpl.Execute(&buf, tldgrps)
   if err != nil {
@@ -76,11 +75,8 @@ func main() {
   client, err = firestore.NewClient(context.Background(), projectid)
   if err != nil {
     log.Fatalf("Firestore client initialization failed: %v", err)
-    return
   }
-
   defer client.Close()
-
 
   mux := http.NewServeMux()
 
@@ -93,7 +89,6 @@ func main() {
     port = "8080"
     log.Printf("Defaulting to port %s", port)
   }
-
 
   server := &http.Server{
     Addr:              ":" + port,
