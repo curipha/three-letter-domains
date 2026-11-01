@@ -29,7 +29,7 @@ var (
   tmpl = template.Must(template.ParseFiles("template.html"))
 )
 
-func toppage(w http.ResponseWriter, r *http.Request) {
+func render(w http.ResponseWriter, r *http.Request) {
   ctx, cancel := context.WithTimeout(r.Context(), 5 * time.Second)
   defer cancel()
 
@@ -85,7 +85,7 @@ func main() {
 
   // "GET" also accepts HEAD; other methods return 405 and an Allow header.
   // "{$}" makes paths other than "/" return a 404.
-  mux.HandleFunc("GET /{$}", toppage)
+  mux.HandleFunc("GET /{$}", render)
 
   port := os.Getenv("PORT")
   if port == "" {
